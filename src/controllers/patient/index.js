@@ -21,15 +21,7 @@ const bookingAppointment = async (req, res) => {
     if (!_.isEmpty(user)) {
       const token = uuidv4()
       const link = `${process.env.REACT_APP_URL}/verify-booking?doctorId=${doctorId}&token=${token}`
-      await sendEmail({
-        receiverEmail: email,
-        name: name,
-        doctorName,
-        time: date,
-        redirectLink: link,
-        language,
-      })
-      await db.Bookings.findOrCreate({
+      const [booking, created] = await db.Bookings.findOrCreate({
         where: { patientId: user.id },
         defaults: {
           statusId: 'S1',
@@ -40,6 +32,16 @@ const bookingAppointment = async (req, res) => {
           token,
         },
       })
+      if (created) {
+        await sendEmail({
+          receiverEmail: email,
+          name: name,
+          doctorName,
+          time: date,
+          redirectLink: link,
+          language,
+        })
+      }
     }
     res.status(200).json({
       status: 'success',
