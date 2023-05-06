@@ -8,14 +8,17 @@ module.exports = {
         autoIncrement: true,
         type: Sequelize.INTEGER,
       },
-      description: {
+      name: {
         type: Sequelize.STRING,
-      },
-      description: {
-        type: Sequelize.TEXT,
       },
       image: {
         type: Sequelize.STRING,
+      },
+      contentHTML: {
+        type: Sequelize.TEXT,
+      },
+      contentMarkdown: {
+        type: Sequelize.TEXT,
       },
       createdAt: {
         type: Sequelize.DATEONLY,
