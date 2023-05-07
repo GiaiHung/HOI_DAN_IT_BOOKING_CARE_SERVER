@@ -1,5 +1,22 @@
 const db = require('../../models')
 
+const getSpecialties = async (req, res) => {
+  try {
+    const specialties = await db.Specialty.findAll()
+    if (specialties.length > 0) {
+      specialties.map((specialty) => {
+        specialty.image = new Buffer(specialty.image, 'base64').toString(
+          'binary'
+        )
+        return specialty
+      })
+      res.status(200).json({ status: 'success', data: specialties })
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 const createSpecialty = async (req, res) => {
   try {
     const { name, imageBase64, contentHTML, contentMarkdown } = req.body
@@ -23,4 +40,4 @@ const createSpecialty = async (req, res) => {
   }
 }
 
-export { createSpecialty }
+export { getSpecialties, createSpecialty }
