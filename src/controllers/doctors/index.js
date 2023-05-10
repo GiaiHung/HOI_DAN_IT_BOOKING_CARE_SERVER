@@ -16,7 +16,38 @@ const getAllDoctors = async (req, res) => {
   }
 }
 
+const checkDoctorRequiredFields = (data) => {
+  const fields = [
+    'description',
+    'contentHTML',
+    'contentMarkdown',
+    'selectedPrice',
+    'selectedProvince',
+    'selectedPayment',
+    'address',
+    'clinicName',
+    'specialtyId',
+    // 'clinicId',
+  ]
+  let isValid = true
+  let element = ''
+
+  for (let i = 0; i < fields.length; i++) {
+    if (!data[fields[i]]) {
+      isValid = false
+      element = fields[i]
+      break
+    }
+  }
+
+  return {
+    isValid,
+    element,
+  }
+}
+
 const saveDoctor = async (req, res) => {
+  const checkRequiredFields = checkDoctorRequiredFields(req.body)
   const {
     description,
     selectedDoctor,
@@ -29,20 +60,14 @@ const saveDoctor = async (req, res) => {
     address,
     clinicName,
     note,
+    specialtyId,
+    // clinicId,
   } = req.body
-  if (
-    !description ||
-    !contentHTML ||
-    !contentMarkdown ||
-    !selectedPrice ||
-    !selectedProvince ||
-    !selectedPayment ||
-    !address ||
-    !clinicName
-  ) {
-    return res
-      .status(400)
-      .json({ status: 'failed', message: 'Please provide full info' })
+  if (!checkRequiredFields.isValid) {
+    return res.status(400).json({
+      status: 'failed',
+      message: `Missing parameter ${checkRequiredFields.element}`,
+    })
   }
   if (action === 'CREATE') {
     await db.Markdown.create({
@@ -73,6 +98,8 @@ const saveDoctor = async (req, res) => {
     doctorInfo.priceId = selectedPrice
     doctorInfo.provinceId = selectedProvince
     doctorInfo.paymentId = selectedPayment
+    doctorInfo.specialtyId = specialtyId
+    // doctorInfo.clinicId = clinicId
     doctorInfo.addressClinic = address
     doctorInfo.nameClinic = clinicName
     doctorInfo.note = note
@@ -83,6 +110,7 @@ const saveDoctor = async (req, res) => {
       priceId: selectedPrice,
       provinceId: selectedProvince,
       paymentId: selectedPayment,
+      specialtyId: specialtyId,
       addressClinic: address,
       nameClinic: clinicName,
       note: note,
@@ -129,6 +157,11 @@ const getDoctorDetail = async (req, res) => {
               model: db.Allcodes,
               as: 'provinceTypeData',
               attributes: ['value_en', 'value_vi', 'keyMap'],
+            },
+            {
+              model: db.Specialty,
+              as: 'specialtyData',
+              // attributes: ['value_en', 'value_vi', 'keyMap'],
             },
           ],
         },
