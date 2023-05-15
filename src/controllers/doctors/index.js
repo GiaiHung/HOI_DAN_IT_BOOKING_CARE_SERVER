@@ -61,7 +61,7 @@ const saveDoctor = async (req, res) => {
     clinicName,
     note,
     specialtyId,
-    // clinicId,
+    clinicId,
   } = req.body
   if (!checkRequiredFields.isValid) {
     return res.status(400).json({
@@ -99,7 +99,7 @@ const saveDoctor = async (req, res) => {
     doctorInfo.provinceId = selectedProvince
     doctorInfo.paymentId = selectedPayment
     doctorInfo.specialtyId = specialtyId
-    // doctorInfo.clinicId = clinicId
+    doctorInfo.clinicId = clinicId
     doctorInfo.addressClinic = address
     doctorInfo.nameClinic = clinicName
     doctorInfo.note = note
@@ -110,7 +110,8 @@ const saveDoctor = async (req, res) => {
       priceId: selectedPrice,
       provinceId: selectedProvince,
       paymentId: selectedPayment,
-      specialtyId: specialtyId,
+      specialtyId,
+      clinicId,
       addressClinic: address,
       nameClinic: clinicName,
       note: note,
@@ -161,7 +162,6 @@ const getDoctorDetail = async (req, res) => {
             {
               model: db.Specialty,
               as: 'specialtyData',
-              // attributes: ['value_en', 'value_vi', 'keyMap'],
             },
           ],
         },

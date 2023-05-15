@@ -6,6 +6,7 @@ import homeRouter from './homeRouter'
 import doctorRouter from './doctorRouter'
 import patientRouter from './patientRouter'
 import specialtyRouter from './specialtyRouter'
+import clinicRouter from './clinicRouter'
 import { createUser, getCRUDPage, getHome } from '../controllers/home'
 
 const router = express.Router()
@@ -21,6 +22,7 @@ const initRouter = (app) => {
   app.use('/api/v1/doctor', doctorRouter)
   app.use('/api/v1/patient', patientRouter)
   app.use('/api/v1/specialty', specialtyRouter)
+  app.use('/api/v1/clinic', clinicRouter)
   return app.use('/', router)
 }
 
