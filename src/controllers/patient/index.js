@@ -5,15 +5,39 @@ import { sendEmail } from '../../services/emailService'
 
 const bookingAppointment = async (req, res) => {
   try {
-    const { name, email, date, timeType, doctorId, doctorName, language } =
-      req.body
-    if (!name || !email || !date || !timeType || !doctorId)
+    const {
+      name,
+      email,
+      address,
+      phone,
+      gender,
+      date,
+      timeType,
+      time,
+      doctorId,
+      doctorName,
+      language,
+    } = req.body
+    if (
+      !name ||
+      !email ||
+      !address ||
+      !phone ||
+      !gender ||
+      !date ||
+      !timeType ||
+      !doctorId
+    )
       return res
         .status(400)
         .json({ status: 'failed', message: 'Missing required parameters' })
     const [user, created] = await db.User.findOrCreate({
       where: { email },
       defaults: {
+        firstName: name,
+        address,
+        gender,
+        phonenumber: phone,
         email,
         roleId: 'R3',
       },
@@ -29,6 +53,7 @@ const bookingAppointment = async (req, res) => {
           doctorId,
           date,
           timeType,
+          time,
           token,
         },
       })

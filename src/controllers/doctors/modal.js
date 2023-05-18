@@ -1,5 +1,6 @@
 import * as _ from 'lodash'
 import db from '../../models'
+import { sendAttachment } from '../../services/emailService'
 
 const getDoctorInfo = async (req, res) => {
   const id = req.query.id
@@ -52,4 +53,70 @@ const getDoctorInfo = async (req, res) => {
   }
 }
 
-export { getDoctorInfo }
+const getListPatientForDoctor = async (req, res) => {
+  const { doctorId, date } = req.query
+  if (!doctorId || !date)
+    return res
+      .status(400)
+      .json({ status: 'failed', message: 'Missing required queries' })
+  const patient = await db.Bookings.findAll({
+    where: {
+      doctorId,
+      time: date,
+      statusId: 'S2',
+    },
+    include: [
+      {
+        model: db.User,
+        as: 'patientData',
+        attributes: ['email', 'firstName', 'address'],
+        include: [
+          {
+            model: db.Allcodes,
+            as: 'genderData',
+            attributes: ['value_en', 'value_vi'],
+          },
+        ],
+      },
+    ],
+    raw: false,
+    nest: true,
+  })
+  res.status(200).json({ status: 'success', data: patient })
+}
+
+const sendRemedy = async (req, res) => {
+  try {
+    const { name, email, doctorId, patientId, timeType } = req.body
+    if (!name || !email || !doctorId || !patientId || !timeType) {
+      return res
+        .status(400)
+        .json({ status: 'failed', message: 'Missing required information' })
+    }
+
+    const appointment = await db.Bookings.findOne({
+      where: {
+        doctorId,
+        patientId,
+        timeType,
+        statusId: 'S2',
+      },
+      raw: false,
+    })
+
+    if (appointment) {
+      appointment.statusId = 'S3'
+      appointment.save()
+    }
+
+    await sendAttachment(req.body)
+
+    res
+      .status(200)
+      .json({ status: 'success', message: 'Successfully confirmed!' })
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { getDoctorInfo, getListPatientForDoctor, sendRemedy }

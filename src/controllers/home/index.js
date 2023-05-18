@@ -22,6 +22,17 @@ const getTopDoctor = async (req, res) => {
           as: 'genderData',
           attributes: ['value_en', 'value_vi'],
         },
+        {
+          model: db.Doctor_Info,
+          attributes: ['specialtyId'],
+          include: [
+            {
+              model: db.Specialty,
+              as: 'specialtyData',
+              attributes: ['name'],
+            },
+          ],
+        },
       ],
       where: { roleId: 'R2' },
       raw: true,
